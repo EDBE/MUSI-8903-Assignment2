@@ -5,13 +5,14 @@
 #include "MUSI8903Config.h"
 
 #include "AudioFileIf.h"
+//#include "Vibrato.h"
 
 using std::cout;
 using std::endl;
 
 // local function declarations
 void    showClInfo ();
-
+//Vibrato small;
 /////////////////////////////////////////////////////////////////////////////////
 // main function
 int main(int argc, char* argv[])
@@ -100,7 +101,7 @@ int main(int argc, char* argv[])
     ppfAudioData = 0;
 
     return 0;
-    
+   
 }
 
 
