@@ -5,7 +5,7 @@
 #include "MUSI8903Config.h"
 
 #include "AudioFileIf.h"
-//#include "Vibrato.h"
+#include "Vibrato.h"
 
 using std::cout;
 using std::endl;
@@ -32,6 +32,9 @@ int main(int argc, char* argv[])
 
     showClInfo ();
 
+    Vibrato v1 (44100*0.01f, 1.f/4410, 44100*0.01f, 1);
+
+    
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
     if (argc < 2)
@@ -40,8 +43,10 @@ int main(int argc, char* argv[])
     }
     else
     {
-        sInputFilePath  = argv[1];
-        sOutputFilePath = sInputFilePath + ".txt";
+        sInputFilePath  = argv[1] ;
+        sInputFilePath += ".wav";
+        sOutputFilePath = argv[1];
+        sOutputFilePath +=  ".txt";
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -78,13 +83,13 @@ int main(int argc, char* argv[])
         long long iNumFrames = kBlockSize;
         phAudioFile->readData(ppfAudioData, iNumFrames);
 
-        for (int i = 0; i < iNumFrames; i++)
-        {
-            for (int c = 0; c < stFileSpec.iNumChannels; c++)
-            {
-                hOutputFile << ppfAudioData[c][i] << "\t";
+        v1.process(ppfAudioData, ppfAudioData, iNumFrames );
+        
+        for ( int sample = 0; sample < iNumFrames; sample++ ) {
+            for ( int channel = 0; channel < stFileSpec.iNumChannels; channel++ ) {
+                hOutputFile << ppfAudioData[channel][sample]<<"\t";
             }
-            hOutputFile << endl;
+            hOutputFile << "\n";
         }
     }
 

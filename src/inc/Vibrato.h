@@ -9,16 +9,41 @@
 #ifndef __MUSI8903__Vibrato__
 #define __MUSI8903__Vibrato__
 
-#include <stdio.h>
-#include <iostream>
+#include "ErrorDef.h"
+#include "Util.h"
+#include "RingBuffer.h"
+#include "VibratoIf.h"
+#include <math.h>
 
-class Vibrato {
-private:
-    int name;
-    
+#define PI 3.14159265728f
+
+class Vibrato
+{
 public:
-    Vibrato();
+    Vibrato (float fFixedDelayInSample, float modFreq, float modWidth,  int iNumChannels);
+    ~Vibrato ();
     
+    Error_t resetInstance ();
+    
+    Error_t setParam (VibratoIf::VibratoParams eParam, float fParamValue);
+    float   getParam (VibratoIf::VibratoParams eParam) const;
+    
+    virtual Error_t process (float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames);
+    
+private:
+    CRingBuffer<float>  **_ppCRingBuffer;
+    
+    float   _afParam[VibratoIf::kNumVibratoParams];
+    float   _aafParamRange[VibratoIf::kNumVibratoParams][2];
+    float   _fModFreqInSample, _fModWidthInSample;
+    
+    int     _iNumChannels;
+    float   _fDelayFixedInSample;
+
+    Vibrato(const Vibrato& rhs);
+    
+    bool    isInParamRange (VibratoIf::VibratoParams, float fValue);
 };
+
 
 #endif /* defined(__MUSI8903__Vibrato__) */
