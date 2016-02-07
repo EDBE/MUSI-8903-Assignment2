@@ -20,7 +20,8 @@
 class Vibrato
 {
 public:
-    Vibrato (float fFixedDelayInSample, float modFreq, float modWidth,  int iNumChannels);
+//    Vibrato (float fFixedDelayInSample, float modFreq, float modWidth,  int iNumChannels);
+    Vibrato (int fFixedDelayInSample, int modFreq, int modWidth, int iNumChannels);
     ~Vibrato ();
     
     Error_t resetInstance ();
@@ -31,12 +32,12 @@ public:
     virtual Error_t process (float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames);
     
 private:
-    CRingBuffer<float>  **_ppCRingBuffer;
+    CRingBuffer<float>  **_ppCRingBuffer,*_pCRingBuffer;
     
     float   _afParam[VibratoIf::kNumVibratoParams];
     float   _aafParamRange[VibratoIf::kNumVibratoParams][2];
-    float   _fModFreqInSample, _fModWidthInSample;
-    
+//    float   _fModFreqInSample, _fModWidthInSample;
+    int   _fModFreqInSample, _fModWidthInSample;
     int     _iNumChannels;
     float   _fDelayFixedInSample;
 

@@ -25,15 +25,15 @@ int main(int argc, char* argv[])
     clock_t                 time                = 0;
 
     float                   **ppfAudioData      = 0;
-
+    float                   **ppfAudioOut      = 0;
     CAudioFileIf            *phAudioFile        = 0;
     std::fstream            hOutputFile;
     CAudioFileIf::FileSpec_t stFileSpec;
 
     showClInfo ();
 
-    Vibrato v1 (44100*0.01f, 1.f/4410, 44100*0.01f, 1);
-
+//    Vibrato v1 (44100*0.01f, 10.f, 44100*0.01f, 1);
+    Vibrato *v2 = new Vibrato(160, 10, 160, 1);
     
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
@@ -74,17 +74,23 @@ int main(int argc, char* argv[])
     ppfAudioData            = new float* [stFileSpec.iNumChannels];
     for (int i = 0; i < stFileSpec.iNumChannels; i++)
         ppfAudioData[i] = new float [kBlockSize];
+    
+    ppfAudioOut            = new float* [stFileSpec.iNumChannels];
+    for (int i = 0; i < stFileSpec.iNumChannels; i++)
+        ppfAudioOut[i] = new float [kBlockSize];
 
     time                    = clock();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
     while (!phAudioFile->isEof())
     {
-        long long iNumFrames = kBlockSize;
-        phAudioFile->readData(ppfAudioData, iNumFrames);
+        long long iNumFrames;// = kBlockSize;
+        phAudioFile->getLength(iNumFrames);
+        phAudioFile->readData(ppfAudioData, iNumFrames );
 
-        v1.process(ppfAudioData, ppfAudioData, iNumFrames );
-        
+//        v1.process(ppfAudioData, ppfAudioOut, iNumFrames );
+        v2 -> process(ppfAudioData, ppfAudioData, iNumFrames);
+    
         for ( int sample = 0; sample < iNumFrames; sample++ ) {
             for ( int channel = 0; channel < stFileSpec.iNumChannels; channel++ ) {
                 hOutputFile << ppfAudioData[channel][sample]<<"\t";
