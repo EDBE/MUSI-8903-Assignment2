@@ -6,6 +6,7 @@
 
 #include "AudioFileIf.h"
 #include "Vibrato.h"
+#include <Vector>
 
 using std::cout;
 using std::endl;
@@ -33,7 +34,7 @@ int main(int argc, char* argv[])
     showClInfo ();
 
 //    Vibrato v1 (44100*0.01f, 10.f, 44100*0.01f, 1);
-    Vibrato *v2 = new Vibrato(160, 10, 160, 1);
+    Vibrato *v2 = new Vibrato(441, 5, 441, 1);
     
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments
@@ -44,9 +45,9 @@ int main(int argc, char* argv[])
     else
     {
         sInputFilePath  = argv[1] ;
-        sInputFilePath += ".wav";
+        sInputFilePath += ".txt";
         sOutputFilePath = argv[1];
-        sOutputFilePath +=  ".txt";
+        sOutputFilePath +=  "Out.txt";
     }
 
     //////////////////////////////////////////////////////////////////////////////
@@ -82,22 +83,52 @@ int main(int argc, char* argv[])
     time                    = clock();
     //////////////////////////////////////////////////////////////////////////////
     // get audio data and write it to the output file
-    while (!phAudioFile->isEof())
-    {
-        long long iNumFrames;// = kBlockSize;
-        phAudioFile->getLength(iNumFrames);
-        phAudioFile->readData(ppfAudioData, iNumFrames );
-
-//        v1.process(ppfAudioData, ppfAudioOut, iNumFrames );
-        v2 -> process(ppfAudioData, ppfAudioData, iNumFrames);
     
-        for ( int sample = 0; sample < iNumFrames; sample++ ) {
-            for ( int channel = 0; channel < stFileSpec.iNumChannels; channel++ ) {
-                hOutputFile << ppfAudioData[channel][sample]<<"\t";
-            }
-            hOutputFile << "\n";
+//    while ( !phAudioFile->isEof() ) {
+//    
+//        long long iNumFrames = kBlockSize;
+////        phAudioFile->getLength(iNumFrames);
+//        phAudioFile->readData(ppfAudioData, iNumFrames );
+//
+////        v1.process(ppfAudioData, ppfAudioOut, iNumFrames );
+//        v2 -> process(ppfAudioData, ppfAudioOut, iNumFrames);
+//    
+//        for ( int sample = 0; sample < iNumFrames; sample++ ) {
+//            for ( int channel = 0; channel < stFileSpec.iNumChannels; channel++ ) {
+//                hOutputFile << ppfAudioOut[channel][sample]<<"\t";
+//            }
+//            hOutputFile << "\n";
+//        }
+//    }
+    
+ 
+        
+    
+    std::ifstream inFile( sInputFilePath );
+    std::istream_iterator<float> start( inFile ), end;
+    std::vector<float> inputVec ( start, end ), outputVec;
+    
+    std::ofstream outputFile(sOutputFilePath);
+    
+    int mySize = inputVec.size();
+    outputVec.resize( inputVec.size() ) ;
+    
+    for ( int c =0;c<1; c++) {
+        for (int i=0; i<inputVec.size(); i++) {
+            ppfAudioData[c][i] = inputVec[i];
         }
     }
+    
+        v2 -> process(ppfAudioData, ppfAudioOut, mySize);
+        
+    for ( int c =0;c<1; c++) {
+        for (int i=0; i<inputVec.size(); i++) {
+            outputVec[i] = ppfAudioOut[c][i];
+        }
+    }
+    std::cout<<sOutputFilePath<<std::endl;
+    std::ostream_iterator<float> outputStream(outputFile,"\n");
+    std::copy(outputVec.begin(),outputVec.end(),outputStream);
 
     cout << "reading/writing done in: \t"    << (clock()-time)*1.F/CLOCKS_PER_SEC << " seconds." << endl;
 

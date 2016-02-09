@@ -9,66 +9,33 @@
 #include "Vibrato.h"
 #include <iostream>
 
-//Vibrato::Vibrato( float fFixedDelayInSample, float modFreq, float modWidth, int iNumChannels) :
-//_ppCRingBuffer(0),
-//
-//_fModFreqInSample( modFreq ),
-//_fModWidthInSample( modWidth ),
-//_iNumChannels(iNumChannels),
-//_fDelayFixedInSample(fFixedDelayInSample)
-//{
-//    
-//    assert(fFixedDelayInSample > 0);
-//    assert(iNumChannels > 0);
-//    
-//    for (int i = 0; i < VibratoIf::kNumVibratoParams; i++) {
-//        _afParam[i]            = 0.F;
-//    }
-//    
-//    _aafParamRange[VibratoIf::kParamFixedDelay][0] = 0;
-//    _aafParamRange[VibratoIf::kParamFixedDelay][1] = fFixedDelayInSample + modWidth;
-//    _aafParamRange[VibratoIf::kParamModFreq][0] = 0;
-//    _aafParamRange[VibratoIf::kParamModFreq][1] = 70;
-//    _aafParamRange[VibratoIf::kParamModWidth][0] = 0;
-//    _aafParamRange[VibratoIf::kParamModWidth][1] = fFixedDelayInSample;
-//    
-//    _ppCRingBuffer = new CRingBuffer<float>*[_iNumChannels];
-//    for (int c = 0; c < _iNumChannels; c++) {
-//        _ppCRingBuffer[c]  = new CRingBuffer<float>(ceil(fFixedDelayInSample+modWidth));
-//    }
-//    _pCRingBuffer = new CRingBuffer<float>( ceil(fFixedDelayInSample));
-//    std::cout << "Constructor is called" << std::endl;
-//}
 
-Vibrato::Vibrato( int fFixedDelayInSample, int modFreq, int modWidth, int iNumChannels) :
+
+Vibrato::Vibrato( int fMaxDelayInSample, int fMaxModFreq, int iNumChannels) :
 _ppCRingBuffer(0),
-
-_fModFreqInSample( modFreq ),
-_fModWidthInSample( modWidth ),
-_iNumChannels(iNumChannels),
-_fDelayFixedInSample(fFixedDelayInSample)
+_iNumChannels(iNumChannels)
 {
     
-    assert(fFixedDelayInSample > 0);
+    assert(fMaxDelayInSample > 0);
     assert(iNumChannels > 0);
     
     for (int i = 0; i < VibratoIf::kNumVibratoParams; i++) {
         _afParam[i]            = 0.F;
     }
     
-    _aafParamRange[VibratoIf::kParamFixedDelay][0] = 0;
-    _aafParamRange[VibratoIf::kParamFixedDelay][1] = fFixedDelayInSample + modWidth;
+    _aafParamRange[VibratoIf::kParamDelay][0] = 0;
+    _aafParamRange[VibratoIf::kParamDelay][1] = fMaxDelayInSample;
     _aafParamRange[VibratoIf::kParamModFreq][0] = 0;
-    _aafParamRange[VibratoIf::kParamModFreq][1] = 70;
+    _aafParamRange[VibratoIf::kParamModFreq][1] = fMaxModFreq;
     _aafParamRange[VibratoIf::kParamModWidth][0] = 0;
-    _aafParamRange[VibratoIf::kParamModWidth][1] = fFixedDelayInSample;
+    _aafParamRange[VibratoIf::kParamModWidth][1] = fMaxDelayInSample;
     
     _ppCRingBuffer = new CRingBuffer<float>*[_iNumChannels];
     for (int c = 0; c < _iNumChannels; c++) {
-        _ppCRingBuffer[c]  = new CRingBuffer<float>(ceil(fFixedDelayInSample+modWidth));
+        _ppCRingBuffer[c]  = new CRingBuffer<float>(ceil(2*fMaxDelayInSample));
     }
-    _pCRingBuffer = new CRingBuffer<float>( fFixedDelayInSample+modWidth );
-    std::cout << "Constructor is called: " << fFixedDelayInSample+modWidth <<" bufferlen"<<std::endl;
+//    _pCRingBuffer = new CRingBuffer<float>( 2*fDelayInSample );
+//    std::cout << "Constructor is called: " << 2*fMaxDelayInSample<<" bufferlen"<<std::endl;
 }
 
 Vibrato::~Vibrato()
@@ -87,7 +54,7 @@ Error_t Vibrato::resetInstance()
     for (int c = 0; c < _iNumChannels; c++)
     {
         _ppCRingBuffer[c]->reset ();
-        _ppCRingBuffer[c]->setWriteIdx(CUtil::float2int<int>(_afParam[VibratoIf::kParamFixedDelay]));
+        _ppCRingBuffer[c]->setWriteIdx(CUtil::float2int<int>(_afParam[VibratoIf::kParamDelay]));
     }
     
     return kNoError;
@@ -99,9 +66,9 @@ Error_t Vibrato::setParam( VibratoIf::VibratoParams eParam, float fParamValue )
         return kFunctionInvalidArgsError;
     
     // special actions for special parameters
-    if (eParam == VibratoIf::kParamFixedDelay)
+    if (eParam == VibratoIf::kParamDelay)
     {
-        int iNumAdditionalTaps  = CUtil::float2int<int>(fParamValue - _afParam[VibratoIf::kParamFixedDelay]);
+        int iNumAdditionalTaps  = CUtil::float2int<int>(fParamValue - _afParam[VibratoIf::kParamDelay]);
         if (iNumAdditionalTaps < 0)
         {
             for (int c = 0; c < _iNumChannels; c++)
@@ -164,31 +131,39 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
 ////            std::cout << _ppCRingBuffer[c]->get(i-1) << ", " << _ppCRingBuffer[c]->get(i) << std::endl;
 //        }
 //    }
-    
-    for ( int n =0; n<iNumberOfFrames; n++ ) {
+    for (int c = 0; c < _iNumChannels; c++) {
+        for ( int n =0; n<iNumberOfFrames; n++ ) {
         
-        mod = sin(_fModFreqInSample * 2 * PI * n / 16000);
+            mod = sin(_afParam[VibratoIf::kParamModFreq] * 2 * PI * n );
         
-        tap = _fDelayFixedInSample + _fModWidthInSample * mod;
-        i   = tap;
-        frac= tap - i;
-        
-        
+            tap = _afParam[VibratoIf::kParamDelay]+ _afParam[VibratoIf::kParamModWidth]* mod;
+            i   = (int) tap;
+            frac= tap - i;
+
 //        std::cout<< mod << ", " << tap<<" Frac: "<<frac<<std::endl;
+//        std::cout<<ppfInputBuffer[0][n]<<std::endl;
         
-        _pCRingBuffer->putPostInc( ppfInputBuffer[0][n] );
-        dummy = _pCRingBuffer->getPostInc();
+            _ppCRingBuffer[c]->putPostInc( ppfInputBuffer[c][n] );
+        
+            if (ppfInputBuffer[0][n] > 1 || ppfInputBuffer[c][n] < -1) {
+                std::cout << "peak input is here" << n << std::endl;
+            }
+            dummy = _ppCRingBuffer[c]->getPostInc();
 //        std::cout<< "\t"<<dummy<<std::endl;
-        
-        ppfOutputBuffer[0][n] = _pCRingBuffer->get( i )*frac + _pCRingBuffer->get( i-1 )*(1-frac);
-        if (ppfOutputBuffer[0][n] > 1) {
-            std::cout << "peak is here" << n << std::endl;
-        }
+            float dl1 = _ppCRingBuffer[c]->get( i ),
+                  dl2 = _ppCRingBuffer[c]->get( i-1 );
+//        std::cout<<dl1<<" , "<<dl2<<std::endl;
+            ppfOutputBuffer[0][n] = dl1*frac + dl2*(1-frac);
+//        std::cout<<ppfOutputBuffer[0][n]<<std::endl;
+//        if (ppfOutputBuffer[0][n] > 1 || ppfOutputBuffer[0][n] < -1) {
+//            std::cout << "peak is here" << n << std::endl;
+//        }
         //std::cout<<outputVec[n]<<std::endl;
 //        std::cout<<_pCRingBuffer->get( i )<<", "<<_pCRingBuffer->get( i-1 )<<std::endl;
-        std::cout << ppfOutputBuffer[0][n] << std::endl;
+//        std::cout << ppfOutputBuffer[0][n] << std::endl;
         //curDelay     = nextDelay;
         
+        }
     }
 
     return kNoError;

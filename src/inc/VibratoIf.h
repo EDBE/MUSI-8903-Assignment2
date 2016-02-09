@@ -12,6 +12,8 @@
 #include <stdio.h>
 #include "ErrorDef.h"
 
+class Vibrato;
+
 class VibratoIf {
 public:
     enum Version_t {
@@ -23,7 +25,7 @@ public:
     };
     
     enum VibratoParams{
-        kParamFixedDelay,
+        kParamDelay,
         kParamModFreq,
         kParamModWidth,
         kNumVibratoParams
@@ -33,20 +35,24 @@ public:
     static const int getVersion (const Version_t eVersionIdx);
     static const char* getBuildDate();
     
-    void create ();
-    void destroy ();
+    static Error_t create (VibratoIf*& pVibratoIf);
+    static Error_t destroy (VibratoIf*& pVibratoIf);
     
-    void init ();
-    void reset ();
+    Error_t init (float fMaxDelayLengthInSec, float fSampleRateInHz, int iNumChannels);
+    Error_t reset ();
     
-    Error_t setParam ();
-    float   getParam ();
+    Error_t setParam (VibratoParams eParam, float fParamValue);
+    float   getParam (VibratoParams eParam) const;
     
-    Error_t process();
+    Error_t process(float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames);
     
 private:
-    bool   _bIsInitialized;
-    float  _fSampleRate;
+    bool     m_bIsInitialized;
+    float    m_fSampleRate;
+    Vibrato* m_pVibrato;
+    
+    VibratoIf();
+    ~VibratoIf();
 };
 
 #endif /* defined(__MUSI8903__VibratoIf__) */
