@@ -34,7 +34,8 @@ int main(int argc, char* argv[])
     showClInfo ();
 
 //    Vibrato v1 (44100*0.01f, 10.f, 44100*0.01f, 1);
-    Vibrato *v2 = new Vibrato(441, 5, 441, 1);
+    VibratoIf *interface;
+    VibratoIf::create(interface);
     
     //////////////////////////////////////////////////////////////////////////////
     // parse command line arguments

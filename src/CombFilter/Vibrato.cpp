@@ -101,7 +101,7 @@ float Vibrato::getParam( VibratoIf::VibratoParams eParam ) const
 
 bool Vibrato::isInParamRange( VibratoIf::VibratoParams eParam, float fValue )
 {
-    if (fValue < _aafParamRange[eParam][0] || fValue > _aafParamRange[eParam][1])
+    if (fValue > _aafParamRange[eParam][0] || fValue < _aafParamRange[eParam][1])
     {
         return false;
     }
@@ -131,6 +131,7 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
 ////            std::cout << _ppCRingBuffer[c]->get(i-1) << ", " << _ppCRingBuffer[c]->get(i) << std::endl;
 //        }
 //    }
+    
     for (int c = 0; c < _iNumChannels; c++) {
         for ( int n =0; n<iNumberOfFrames; n++ ) {
         
@@ -139,29 +140,14 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
             tap = _afParam[VibratoIf::kParamDelay]+ _afParam[VibratoIf::kParamModWidth]* mod;
             i   = (int) tap;
             frac= tap - i;
-
-//        std::cout<< mod << ", " << tap<<" Frac: "<<frac<<std::endl;
-//        std::cout<<ppfInputBuffer[0][n]<<std::endl;
         
             _ppCRingBuffer[c]->putPostInc( ppfInputBuffer[c][n] );
         
-            if (ppfInputBuffer[0][n] > 1 || ppfInputBuffer[c][n] < -1) {
-                std::cout << "peak input is here" << n << std::endl;
-            }
             dummy = _ppCRingBuffer[c]->getPostInc();
-//        std::cout<< "\t"<<dummy<<std::endl;
             float dl1 = _ppCRingBuffer[c]->get( i ),
                   dl2 = _ppCRingBuffer[c]->get( i-1 );
-//        std::cout<<dl1<<" , "<<dl2<<std::endl;
-            ppfOutputBuffer[0][n] = dl1*frac + dl2*(1-frac);
-//        std::cout<<ppfOutputBuffer[0][n]<<std::endl;
-//        if (ppfOutputBuffer[0][n] > 1 || ppfOutputBuffer[0][n] < -1) {
-//            std::cout << "peak is here" << n << std::endl;
-//        }
-        //std::cout<<outputVec[n]<<std::endl;
-//        std::cout<<_pCRingBuffer->get( i )<<", "<<_pCRingBuffer->get( i-1 )<<std::endl;
-//        std::cout << ppfOutputBuffer[0][n] << std::endl;
-        //curDelay     = nextDelay;
+            
+            ppfOutputBuffer[c][n] = dl1*frac + dl2*(1-frac);
         
         }
     }
