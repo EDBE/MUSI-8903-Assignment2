@@ -97,7 +97,7 @@ float CCombFilterBase::getParam( CCombFilterIf::FilterParam_t eParam ) const
 
 bool CCombFilterBase::isInParamRange( CCombFilterIf::FilterParam_t eParam, float fValue )
 {
-    if (fValue < m_aafParamRange[eParam][0] || fValue > m_aafParamRange[eParam][1])
+    if (fValue > m_aafParamRange[eParam][0] || fValue < m_aafParamRange[eParam][1])
     {
         return false;
     }
@@ -119,7 +119,7 @@ Error_t CCombFilterFir::process( float **ppfInputBuffer, float **ppfOutputBuffer
     }
     return kNoError;
 }
-
+ 
 
 CCombFilterIir::CCombFilterIir (int iMaxDelayInFrames, int iNumChannels) : CCombFilterBase(iMaxDelayInFrames, iNumChannels)
 {

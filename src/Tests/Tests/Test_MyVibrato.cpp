@@ -23,15 +23,15 @@ SUITE(Vibrato) {
             m_pVibrato(0),
             m_ppfInputData(0),
             m_ppfOutputData(0),
-            m_iDataLength(40),
+            m_iDataLength(20),
             m_fMaxDelayLength(3.F),
             m_fMaxModLength(3.F),
             m_iBlockLength(171),
             m_iNumChannels(3),
             m_fSampleRate(8000),
-            m_fDelay(20.f/8000),
-            m_fModFreq(.1F),
-            m_fModWidth(20.F/8000)
+            m_fDelay(5.f/8000),
+            m_fModFreq(.1F*8000),
+            m_fModWidth(5.F/8000)
         {
             VibratoIf::create(m_pVibrato);
             
@@ -144,24 +144,23 @@ SUITE(Vibrato) {
         m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
         m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
         
-        float **ppftestData = new float*[m_iNumChannels];
+
         for (int i = 0; i < m_iNumChannels; i++)
         {
             CVectorFloat::setValue(m_ppfInputData[i], 1.f, m_iDataLength);
-            ppftestData[i] = new float[m_iDataLength];
-            CVectorFloat::setValue(ppftestData[i], 1.f, m_iDataLength);
+
         }
         
         int delayInSamp = m_fDelay*m_fSampleRate;
         
         for(int i=0; i< m_iNumChannels; i++) {
-            CVectorFloat::setZero(ppftestData[i], delayInSamp);
+            CVectorFloat::setZero(m_ppfInputData[i], delayInSamp);
         }
 
         TestProcess();
         
         for (int c = 0; c < m_iNumChannels; c++)
-            CHECK_ARRAY_CLOSE(ppftestData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
+            CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
         
         m_pVibrato->reset();
     }

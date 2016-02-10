@@ -32,13 +32,12 @@ public:
     Error_t process (float **ppfInputBuffer, float **ppfOutputBuffer, int iNumberOfFrames);
     
 private:
-    CRingBuffer<float>  **_ppCRingBuffer;//, *_pCRingBuffer;
+    CRingBuffer<float>  **_ppCRingBuffer;
     
     float   _afParam[VibratoIf::kNumVibratoParams];
     float   _aafParamRange[VibratoIf::kNumVibratoParams][2];
 
     int     _iNumChannels;
-
 
     Vibrato(const Vibrato& rhs);
     

@@ -89,7 +89,7 @@ Error_t CCombFilterIf::init( CombFilterType_t eFilterType, float fMaxDelayLength
         fSampleRateInHz <= 0 ||
         iNumChannels <= 0)
         return kFunctionInvalidArgsError;
-
+    
     switch (eFilterType)
     {
     case kCombFIR:

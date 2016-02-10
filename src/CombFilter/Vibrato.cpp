@@ -30,7 +30,7 @@ _iNumChannels(iNumChannels)
     _aafParamRange[VibratoIf::kParamModWidth][0] = 0;
     _aafParamRange[VibratoIf::kParamModWidth][1] = fMaxDelayInSample;
     
-    _ppCRingBuffer = new CRingBuffer<float>*[_iNumChannels];
+    _ppCRingBuffer = new CRingBuffer<float>* [_iNumChannels];
     for (int c = 0; c < _iNumChannels; c++) {
         _ppCRingBuffer[c]  = new CRingBuffer<float>(ceil(2*fMaxDelayInSample));
     }
@@ -115,22 +115,6 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
 {
     float mod, tap, frac, dummy;
     int i;
-    
-//    for(int c = 0; c < _iNumChannels; c++) {
-//        for (int n = 0; n < iNumberOfFrames; n++) {
-//            mod = sin(_fModFreqInSample * 2 * PI * n);
-//            std::cout<<mod<<std::endl;
-//            tap = _fDelayFixedInSample + _fModWidthInSample * mod;
-//            i   = tap;
-//            frac= tap - i;
-//            
-//            
-//            _ppCRingBuffer[c]->putPostInc(ppfInputBuffer[c][n]);
-//            dummy = _ppCRingBuffer[c]->getPostInc();
-//            ppfOutputBuffer[c][n] = _ppCRingBuffer[c]->get(i)*frac + _ppCRingBuffer[c]->get(i-1)*(1-frac);
-////            std::cout << _ppCRingBuffer[c]->get(i-1) << ", " << _ppCRingBuffer[c]->get(i) << std::endl;
-//        }
-//    }
     
     for (int c = 0; c < _iNumChannels; c++) {
         for ( int n =0; n<iNumberOfFrames; n++ ) {

@@ -23,7 +23,7 @@ SUITE(CombFilter)
             m_iBlockLength(171),
             m_iNumChannels(3),
             m_fSampleRate(8000),
-            m_fDelay(.1F),
+            m_fDelay(5.F/8000),
             m_fGain(.5F)
         {
             CCombFilterIf::create(m_pCombFilter);
