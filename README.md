@@ -12,7 +12,7 @@ The output of the vibrato for each sample equals to: delayline(i+1)*fraction + d
 
 3, Design and implement an LFO class to work with the fractional delay line above.
 
-The LFO was implemented by using 'sin' function which is from the <math.h>
+The LFO was implemented by using 'sin' function which is from the 'math.h'
 
 4, Implement main command line function
 

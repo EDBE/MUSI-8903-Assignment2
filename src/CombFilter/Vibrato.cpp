@@ -11,7 +11,7 @@
 
 
 
-Vibrato::Vibrato( int fMaxDelayInSample, int fMaxModFreq, int iNumChannels) :
+Vibrato::Vibrato( float fMaxDelayInSample, int fMaxModFreq, int iNumChannels) :
 _ppCRingBuffer(0),
 _iNumChannels(iNumChannels)
 {
@@ -29,6 +29,7 @@ _iNumChannels(iNumChannels)
     _aafParamRange[VibratoIf::kParamModFreq][1] = fMaxModFreq;
     _aafParamRange[VibratoIf::kParamModWidth][0] = 0;
     _aafParamRange[VibratoIf::kParamModWidth][1] = fMaxDelayInSample;
+    //Maximum modulation width cannot be greter than the fixed delay
     
     _ppCRingBuffer = new CRingBuffer<float>* [_iNumChannels];
     for (int c = 0; c < _iNumChannels; c++) {
@@ -65,7 +66,6 @@ Error_t Vibrato::setParam( VibratoIf::VibratoParams eParam, float fParamValue )
     if (isInParamRange(eParam, fParamValue))
         return kFunctionInvalidArgsError;
     
-    // special actions for special parameters
     if (eParam == VibratoIf::kParamDelay)
     {
         int iNumAdditionalTaps  = CUtil::float2int<int>(fParamValue - _afParam[VibratoIf::kParamDelay]);
@@ -101,13 +101,13 @@ float Vibrato::getParam( VibratoIf::VibratoParams eParam ) const
 
 bool Vibrato::isInParamRange( VibratoIf::VibratoParams eParam, float fValue )
 {
-    if (fValue > _aafParamRange[eParam][0] || fValue < _aafParamRange[eParam][1])
+    if (fValue < _aafParamRange[eParam][0] || fValue > _aafParamRange[eParam][1])
     {
-        return false;
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
 }
 
@@ -117,22 +117,22 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
     int i;
     
     for (int c = 0; c < _iNumChannels; c++) {
-        for ( int n =0; n<iNumberOfFrames; n++ ) {
+        for ( int n =0; n < iNumberOfFrames; n++ ) {
         
-            mod = sin(_afParam[VibratoIf::kParamModFreq] * 2 * PI * n );
+            mod = sin(_afParam[VibratoIf::kParamModFreq] * 2 * PI * (n+1) );
         
-            tap = _afParam[VibratoIf::kParamDelay]+ _afParam[VibratoIf::kParamModWidth]* mod;
+            tap = 1 + _afParam[VibratoIf::kParamDelay]+ _afParam[VibratoIf::kParamModWidth]* mod;
             i   = (int) tap;
             frac= tap - i;
         
-            _ppCRingBuffer[c]->putPostInc( ppfInputBuffer[c][n] );
+            _ppCRingBuffer[c]->putPostInc( ppfInputBuffer[c][n-1] );
         
             dummy = _ppCRingBuffer[c]->getPostInc();
-            float dl1 = _ppCRingBuffer[c]->get( i ),
-                  dl2 = _ppCRingBuffer[c]->get( i-1 );
+            float dl1 = _ppCRingBuffer[c]->get( i+1 ),
+                  dl2 = _ppCRingBuffer[c]->get( i );
             
             ppfOutputBuffer[c][n] = dl1*frac + dl2*(1-frac);
-        
+            std::cout << ppfOutputBuffer[c][n] << std::endl;
         }
     }
 

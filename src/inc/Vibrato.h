@@ -15,13 +15,13 @@
 #include "VibratoIf.h"
 #include <math.h>
 
-#define PI 3.14159265728f
+#define PI 3.14159265358f
 
 class Vibrato
 {
 public:
 
-    Vibrato (int fMaxDelayInSample, int fMaxModFreq, int iNumChannels);
+    Vibrato (float fMaxDelayInSample, int fMaxModFreq, int iNumChannels);
     ~Vibrato ();
     
     Error_t resetInstance ();
