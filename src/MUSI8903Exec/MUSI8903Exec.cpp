@@ -87,8 +87,8 @@ int main(int argc, char* argv[])
     
     _pVibrato->init(3.F, stFileSpec.fSampleRateInHz, stFileSpec.iNumChannels);
     
-    _pVibrato->setParam(VibratoIf::kParamModFreq, 20);
-    _pVibrato->setParam(VibratoIf::kParamModWidth, .05F);
+    _pVibrato->setParam(VibratoIf::kParamModFreq, 20.F);
+    _pVibrato->setParam(VibratoIf::kParamModWidth, .1F);
 
     
     while ( !phAudioFile->isEof() ) {
@@ -98,12 +98,12 @@ int main(int argc, char* argv[])
         phAudioFile->readData(ppfAudioData, iNumFrames );
 
 
-        _pVibrato -> process(ppfAudioData, ppfAudioOut, iNumFrames);
+        _pVibrato -> process(ppfAudioData, ppfAudioData, iNumFrames);
 
     
         for ( int sample = 0; sample < iNumFrames; sample++ ) {
             for ( int channel = 0; channel < stFileSpec.iNumChannels; channel++ ) {
-                hOutputFile << ppfAudioOut[channel][sample]<<"\t";
+                hOutputFile << ppfAudioData[channel][sample]<<"\t";
             }
             hOutputFile << "\n";
         }
