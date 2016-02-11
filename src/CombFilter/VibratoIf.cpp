@@ -93,7 +93,7 @@ Error_t VibratoIf::init( float fMaxDelayLengthInSec, float fSampleRateInHz, int 
     m_bIsInitialized    = true;
     
     m_pVibrato = new Vibrato( CUtil::float2int<int>(fMaxDelayLengthInSec*fSampleRateInHz),
-                              CUtil::float2int<int>(1000/fSampleRateInHz),
+                              ((fSampleRateInHz/4)/fSampleRateInHz),
                               iNumChannels);
     
     

@@ -11,7 +11,7 @@
 
 
 
-Vibrato::Vibrato( int fMaxDelayInSample, int fMaxModFreq, int iNumChannels) :
+Vibrato::Vibrato( int fMaxDelayInSample, float fMaxModFreq, int iNumChannels) :
 _ppCRingBuffer(0),
 _iNumChannels(iNumChannels)
 {
@@ -127,9 +127,11 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
         
             _ppCRingBuffer[c]->putPostInc( ppfInputBuffer[c][n] );
             
+            float offset   = _ppCRingBuffer[c]->getWriteIdx() - tap -  _ppCRingBuffer[c]->getReadIdx();
+            int iOffset = std::floor(offset);
             
-            float dl1 = _ppCRingBuffer[c]->getFromWrite( -i ),
-                  dl2 = _ppCRingBuffer[c]->getFromWrite( -i-1 );
+            float dl1 = _ppCRingBuffer[c]->getFromWrite( iOffset ),
+                  dl2 = _ppCRingBuffer[c]->getFromWrite( iOffset+1 );
             
             ppfOutputBuffer[c][n] = dl2*frac + dl1*(1-frac);
 

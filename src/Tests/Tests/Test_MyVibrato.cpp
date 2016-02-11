@@ -28,7 +28,7 @@ SUITE(Vibrato) {
             m_iDataLength(2*8000),
             m_fMaxDelayLength(3.F),
             m_fMaxModLength(3.F),
-            m_iBlockLength(171),
+            m_iBlockLength(4096),
             m_iNumChannels(1),
             m_fSampleRate(8000),
             m_fDelay(3.f),
@@ -241,6 +241,46 @@ SUITE(Vibrato) {
         
 
     }
+
+//    TEST_FIXTURE(VibratoData, VaryingBlocksize)
+//    {
+//        
+//        m_pVibrato->init( m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
+//        
+//        for (int c = 0; c < m_iNumChannels; c++)
+//            CSynthesis::generateSine (m_ppfInputData[c], 387.F, m_fSampleRate, m_iDataLength, .8F, static_cast<float>(c*M_PI_2));
+//        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
+//        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
+//        
+//        TestProcess();
+//        
+//        m_pVibrato->reset();
+//        m_pVibrato->init( m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
+//        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
+//        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
+//        {
+//            int iNumFramesRemaining = m_iDataLength;
+//            while (iNumFramesRemaining > 0)
+//            {
+//                
+//                int iNumFrames = std::min(static_cast<float>(iNumFramesRemaining), static_cast<float>(rand())/RAND_MAX*17000);
+//                
+//                for (int c = 0; c < m_iNumChannels; c++)
+//                {
+//                    m_ppfInputTmp[c]    = &m_ppfInputData[c][m_iDataLength - iNumFramesRemaining];
+//                }
+//                m_pVibrato->process(m_ppfInputTmp, m_ppfInputTmp, iNumFrames);
+//                
+//                iNumFramesRemaining -= iNumFrames;
+//            }
+//        }
+//        
+//        for (int c = 0; c < m_iNumChannels; c++)
+//            CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
+//        
+//        
+//    }
+    
 
 
 }

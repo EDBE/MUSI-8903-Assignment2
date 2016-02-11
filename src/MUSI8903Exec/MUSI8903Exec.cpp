@@ -87,8 +87,8 @@ int main(int argc, char* argv[])
     
     _pVibrato->init(3.F, stFileSpec.fSampleRateInHz, stFileSpec.iNumChannels);
     
-    _pVibrato->setParam(VibratoIf::kParamModFreq, 20.F);
-    _pVibrato->setParam(VibratoIf::kParamModWidth, .1F);
+    _pVibrato->setParam(VibratoIf::kParamModFreq, 5.F);
+    _pVibrato->setParam(VibratoIf::kParamModWidth, .01F);
 
     
     while ( !phAudioFile->isEof() ) {
