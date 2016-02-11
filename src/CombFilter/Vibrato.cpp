@@ -120,6 +120,7 @@ Error_t Vibrato::process( float **ppfInputBuffer, float **ppfOutputBuffer, int i
         for ( int n =0; n < iNumberOfFrames; n++ ) {
         
             mod = sin(_afParam[VibratoIf::kParamModFreq] * 2 * PI * (n) );
+
         
             tap = 1 + _afParam[VibratoIf::kParamModWidth]+ _afParam[VibratoIf::kParamModWidth]* mod;
             i   = (int) (tap+0.001);
