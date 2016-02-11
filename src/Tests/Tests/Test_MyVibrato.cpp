@@ -10,6 +10,8 @@
 
 #include <cassert>
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 
 #include "UnitTest++.h"
 
@@ -23,15 +25,15 @@ SUITE(Vibrato) {
             m_pVibrato(0),
             m_ppfInputData(0),
             m_ppfOutputData(0),
-            m_iDataLength(20),
+            m_iDataLength(2*8000),
             m_fMaxDelayLength(3.F),
             m_fMaxModLength(3.F),
             m_iBlockLength(171),
-            m_iNumChannels(3),
-            m_fSampleRate(80),
+            m_iNumChannels(1),
+            m_fSampleRate(8000),
             m_fDelay(3.f),
             m_fModFreq(10.F),
-            m_fModWidth(3.f)
+            m_fModWidth(0.5f)
         {
             VibratoIf::create(m_pVibrato);
             
@@ -114,59 +116,132 @@ SUITE(Vibrato) {
 
     };
     
-//    TEST_FIXTURE(VibratoData, ZeroInput) {
-//        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
-//        m_pVibrato->setParam(VibratoIf::kParamDelay, m_fDelay);
-//        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
-//        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
-//        
-//        TestProcess();
-//        
-//        for (int c = 0; c < m_iNumChannels; c++)
-//            CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
-//        
-//        m_pVibrato->reset();
-//    }
-//    
-//    TEST_FIXTURE(VibratoData, ZeroModWidth) {
-//        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, 1);
-//        m_pVibrato->setParam(VibratoIf::kParamDelay, m_fDelay);
-//        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
-//        m_pVibrato->setParam(VibratoIf::kParamModWidth, 0);
-//        
-//        TestProcess();
-//        
-//        m_pVibrato->reset();
-//    }
-//
-    TEST_FIXTURE(VibratoData, DC2DC) {
-        m_pVibrato->reset();
-        
+    TEST_FIXTURE(VibratoData, ZeroInput) {
         m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
-        m_pVibrato->setParam(VibratoIf::kParamDelay, m_fDelay);
         m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
         m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
         
-
-        for (int i = 0; i < m_iNumChannels; i++)
-        {
-            CVectorFloat::setValue(m_ppfInputData[i], 1.f, m_iDataLength);
-
-        }
-//        
-//        int delayInSamp = m_fDelay*m_fSampleRate;
-//        
-//        for(int i=0; i< m_iNumChannels; i++) {
-//            CVectorFloat::setZero(m_ppfInputData[i], delayInSamp);
-//        }
-
         TestProcess();
         
         for (int c = 0; c < m_iNumChannels; c++)
             CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
         
-//        m_pVibrato->reset(); Last test calls the destructor of the vibratoData struct
+        m_pVibrato->reset();
     }
+    
+    TEST_FIXTURE(VibratoData, ZeroModWidth) {
+        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
+        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
+        m_pVibrato->setParam(VibratoIf::kParamModWidth, 0);
+        
+        for (int i = 0; i < m_iNumChannels; i++)
+        {
+          CVectorFloat::setValue(m_ppfInputData[i], 1.f, m_iDataLength);        
+        }
+        
+        TestProcess();
+        
+        for (int c = 0; c < m_iNumChannels; c++)
+            CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
+
+        
+        m_pVibrato->reset();
+    }
+
+//    TEST_FIXTURE(VibratoData, DC2DC) {
+//        m_pVibrato->reset();
+//        
+//        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
+//        m_pVibrato->setParam(VibratoIf::kParamModFreq, 10);
+//        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
+//        
+//
+//        for (int i = 0; i < m_iNumChannels; i++)
+//        {
+//            CVectorFloat::setValue(m_ppfInputData[i], 1.f, m_iDataLength);
+//
+//        }
+//
+//
+//        TestProcess();
+//        
+//        for(int c=0; c<m_iNumChannels; c++) {
+//            std::cout<<"\nNew Channel\n";
+//            for (int sample=0; sample<m_iDataLength; sample++) {
+//                std::cout<<m_ppfInputData[c][sample]<<"   "<<m_ppfOutputData[c][sample]<<std::endl;
+//            }
+//        }
+//        
+//        
+//        for (int c = 0; c < m_iNumChannels; c++)
+//            CHECK_ARRAY_CLOSE(m_ppfInputData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
+//        
+//
+//    }
+    
+    TEST_FIXTURE(VibratoData, impulse) {
+        m_pVibrato->reset();
+        
+        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels);
+        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
+        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
+        
+        
+        for (int i = 0; i < m_iNumChannels; i++)
+        {
+              m_ppfInputData[i][12] = 1;
+            
+        }
+
+        
+        TestProcess();
+        
+        float **_ppfReferenceData = new float*[m_iNumChannels];
+        
+        for (int i = 0; i < m_iNumChannels; i++)
+        {
+            _ppfReferenceData[i] = new float[m_iDataLength];
+            CVectorFloat::setZero(_ppfReferenceData[i], m_iDataLength);
+            _ppfReferenceData[i][ 13 + (int)(m_fModWidth*m_fSampleRate) ] = 0.7071f;
+            
+        }
+        
+        
+        for (int c = 0; c < m_iNumChannels; c++)
+            CHECK_ARRAY_CLOSE(_ppfReferenceData[c], m_ppfOutputData[c], m_iDataLength, 1e-3);
+    
+        
+    }
+    
+    
+    TEST_FIXTURE(VibratoData, sineWaveTest) {
+        m_pVibrato->reset();
+        
+        m_pVibrato->init(m_fMaxDelayLength, m_fSampleRate, m_iNumChannels );
+        m_pVibrato->setParam(VibratoIf::kParamModFreq, m_fModFreq);
+        m_pVibrato->setParam(VibratoIf::kParamModWidth, m_fModWidth);
+
+        
+        CSynthesis::generateSine (m_ppfInputData[0], 20, m_fSampleRate, m_iDataLength, .8F, static_cast<float>(0*M_PI_2));
+        
+        TestProcess();
+        
+        std::ofstream outFile("/Users/Rithesh/Desktop/testSamples/myOut.txt"),
+                      inFile("/Users/Rithesh/Desktop/testSamples/sineIn.txt");
+
+        for(int c=0; c<m_iNumChannels; c++) {
+        
+           for (int sample=0; sample<m_iDataLength; sample++) {
+               outFile<<m_ppfOutputData[c][sample]<<std::endl;
+               inFile<<m_ppfInputData[c][sample]<<std::endl;
+           }
+        }
+        
+        outFile.close();
+        
+
+    }
+
 
 }
 

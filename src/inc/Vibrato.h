@@ -21,7 +21,7 @@ class Vibrato
 {
 public:
 
-    Vibrato (float fMaxDelayInSample, int fMaxModFreq, int iNumChannels);
+    Vibrato (int fMaxDelayInSample, int fMaxModFreq, int iNumChannels);
     ~Vibrato ();
     
     Error_t resetInstance ();

@@ -126,8 +126,8 @@ Error_t VibratoIf::setParam( VibratoParams eParam, float fParamValue )
     
     switch (eParam)
     {
-        case kParamDelay:
-            return m_pVibrato->setParam(eParam, fParamValue * m_fSampleRate);
+//        case kParamDelay:
+//            return m_pVibrato->setParam(eParam, fParamValue * m_fSampleRate);
         case kParamModFreq:
             return m_pVibrato->setParam(eParam, fParamValue / m_fSampleRate);
         default:
@@ -144,8 +144,8 @@ float VibratoIf::getParam( VibratoParams eParam ) const
     
     switch (eParam)
     {
-        case kParamDelay:
-            return m_pVibrato->getParam(eParam) / m_fSampleRate;
+//        case kParamDelay:
+//            return m_pVibrato->getParam(eParam) / m_fSampleRate;
         default:
         case kParamModFreq:
             return m_pVibrato->getParam (eParam) * m_fSampleRate;

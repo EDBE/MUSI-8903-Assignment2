@@ -25,7 +25,7 @@ public:
     };
     
     enum VibratoParams{
-        kParamDelay,
+//        kParamDelay,
         kParamModFreq,
         kParamModWidth,
         kNumVibratoParams

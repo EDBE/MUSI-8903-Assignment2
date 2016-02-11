@@ -35,6 +35,7 @@ public:
     {
         put(tNewValue);
         incIdx(m_iWriteIdx);
+        incIdx(m_iReadIdx); //Vibrato/Delay Implementation!
     }
 
     /*! add new values of type T to write index and increment write index
@@ -108,6 +109,17 @@ public:
             iRead  += m_iBuffLength;
         
         return m_ptBuff[iRead];
+    }
+    
+    T getFromWrite (int iOffset = 0) const
+    {
+        int iWrite = m_iWriteIdx + iOffset;
+        while (iWrite > m_iBuffLength-1)
+            iWrite  -= m_iBuffLength;
+        while (iWrite < 0)
+            iWrite  += m_iBuffLength;
+        
+        return m_ptBuff[iWrite];
     }
 
     /*! return the values starting at the current read index
@@ -186,6 +198,7 @@ public:
     {
         return m_iBuffLength;
     }
+    
 private:
     CRingBuffer ();
     CRingBuffer(const CRingBuffer& that);
