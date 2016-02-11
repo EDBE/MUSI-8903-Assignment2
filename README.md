@@ -29,3 +29,15 @@ The LFO was implemented by using 'sin' function which is from the 'math.h'
 	3, varying input block size
 	4, zero input signal
 	5, additional test to verify an yet untested correct functionality
+
+Note:
+	For our project, you may need to add the 'Vibrato.cpp' and 'VibratoIf.cpp' to the Compile Sources for building the following targets (at least in XCode):
+
+		1. MUSI890Exec :
+		      a.Vibrato.cpp
+		      b.VibratoIf.cpp
+		      c.MUSI8903Exec.cpp
+
+		 2. TestExec:
+		 	  a.Test.cpp
+		 	  b.Test_MyVibrato.cpp
